@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery</title>
+  </head>
+  <body>
+    <div>
+      <h1 style="display: block; margin: auto; text-align: center">
+        Welcome to the image uploader Gallery
+      </h1>
+    </div>
+
+    <script>
+      //reload page once in cliend side so that user sees the image
+      window.addEventListener("DOMContentLoaded", (event) => {
+        if (document.URL.indexOf("#") == -1) {
+          // Set the URL to whatever it was plus "#".
+          url = document.URL + "#";
+          location = "#";
+          //Reload the page
+          location.reload(true);
+        }
+      });
+    </script>
+  </body>
+</html>
