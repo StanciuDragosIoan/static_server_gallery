@@ -1,7 +1,7 @@
 const os = require("os");
 const fs = require("fs");
 const path = require("path");
-const Busboy = require("busboy");
+const busboy = require('busboy');
 
 const styles = {
   card: `
@@ -111,14 +111,17 @@ const imageUploader = {
           text-align:center;
         `,
 
-  uploadImage: (req, res) => {
-    const busboy = new Busboy({ headers: req.headers });
-    busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
+uploadImage: (req, res) => {
+    const bb = busboy({ headers: req.headers });
+    bb.on("file", (name, file, info) => {
+      //validation allowing only for .png/.jpg pictures
       const mimetypes = ["image/jpeg", "image/png"];
+      const { filename, encoding, mimeType } = info;
 
-      if (!mimetypes.includes(mimetype)) {
+      if (!mimetypes.includes(mimeType)) {
         return res.end("Please upload only .jpg or .png files");
       }
+
       const uploadDirectory = "./uploads";
       //create directory if it does not exist
       if (!fs.existsSync(uploadDirectory)) {
@@ -126,28 +129,24 @@ const imageUploader = {
       }
       //assign id to image
       const id = Math.random().toString(12).substring(2, 17);
-      const saveTo = path.join(
-        __dirname,
-        "uploads",
-        path.basename(`${id}.jpg`)
-      );
+      const saveTo = path.join(__dirname, "uploads", path.basename(`${id}.jpg`));
       file.pipe(fs.createWriteStream(saveTo));
     });
 
-    busboy.on("finish", function () {
+    bb.on("close", function () {
       return res.end(`
-              <h1 
-                style="${imageUploader.header}"
-              >File uploaded successfully</h1>
-            <script>
-            //redirect to index.html after upload
-              setTimeout(()=> {
-                window.location.href = "http://localhost:5555/index.html";
-              }, 2000);
-            </script>
-              `);
+                    <h1 
+                      style="${imageUploader.header}"
+                    >File uploaded successfully</h1>
+                  <script>
+                  //redirect to index.html after upload
+                    setTimeout(()=> {
+                      window.location.href = "http://localhost:5555/index.html";
+                    }, 2000);
+                  </script>
+                    `);
     });
-    return req.pipe(busboy);
+    return req.pipe(bb);
   },
 };
 
